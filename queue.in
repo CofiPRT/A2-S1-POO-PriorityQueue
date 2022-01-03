@@ -1,0 +1,17 @@
+4
+g2 WY 25 p true false
+g1 CH 4 b true false
+f1 JP 8 b false false
+g3 GM 8 b false false
+insert g2
+insert g1
+insert f1
+insert g3
+list
+embark
+list
+embark
+list
+embark
+list
+embark

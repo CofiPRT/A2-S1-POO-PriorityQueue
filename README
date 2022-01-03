@@ -1,0 +1,222 @@
+---------------------------------------
+--- Proiectare Orientata pe Obiecte ---
+------- Tema 1 - PriorityQueue --------
+---------------------------------------
+
+Cuprinsul pachetelor:
+	1. 'persondata'				Linia  19
+	2. 'entities'				Linia  37
+	3. 'heapclasses'			Linia  65
+	4. 'boarding'				Linia 160
+	
+*** ASPECT IMPORTANT ***
+Am redenumit "Pasager" din exemplele cerintei in "Entity".
+Functionalitatea este aceeasi!
+	
+=== persondata ===
+------ Person
+		- O persoana cu informatii cunoscute (nume, varsta, tipul de bilet,
+		eventuale beneficii)
+		- Prioritatea acestei persoane este data de categoria de varsta din
+		care face parte, de tipul de bilet si de eventualele beneficii oferite.
+
+------ Ticket
+		- Un bilet ce poate fi de 3 tipuri: economy, premium si business.
+		Fiecare tip de bilet ofera punctaje de prioritate diferite.
+		* ALEGERE: As fi putut crea cate o clasa pentru fiecare tip de bilet
+		dar am renuntat la aceasta idee intrucat singura diferenta ar fi fost
+		doar un intreg reprezentand punctajul de prioritate. Daca biletele ar fi
+		avut functionalitati mai variate, as fi creat aceste clase.
+------ Benefits
+		- Un obiect de acest tip retine 2 campuri reprezentand beneficiile
+		oferite unei persoane.
+			
+=== entities ===
+------ Entity
+		- Clasa din care se deriva clasele GroupedEntity si Single
+		* ALEGERE: Desi singura diferenta dintre subclase este un bonus de
+		punctaj de prioritate am ales sa le creez pentru a utiliza conceptele
+		de mostenire si polimorfism
+		
+------ GroupedEntity
+		- Clasa din care se deriva clasele Family si Group
+		- Prezinta un camp "members" in care vor fi retinute persoanele
+		aferente unei entitati de acest tip
+		- Prioritatea unei astfel de entitati este obtinuta prin insumarea
+		prioritatilor persoanelor retinute in "members"
+		
+------ Family
+		- Metoda getPriority() a acestei clase ofera un bonus de 10p la scorul
+		de prioritate.
+		
+------ Group
+		- Metoda getPriority() a acestei clase ofera un bonus de 5p la scorul
+		de prioritate.
+		
+------ Single
+		- Metoda getPriority() a acestei clase nu ofera niciun bonus de
+		prioritate.
+		- Clasa are un singur membru de tip Persoana, spre deosebire de
+		celelalte doua
+		
+=== heapclasses ===
+------ Node
+		- Un simplu nod cu referinte catre nodul stang, nodul drept si nodul
+		parinte
+		- Retine un obiect de tip Entity
+		
+------ BinaryHeap
+		- Un obiect al acestei clase reprezinta un maxHeap, retinand un nod
+		root si marimea arborelui
+		- Sunt prezente metode ce reprezinta operatii asupra heapului precum:
+			insert:
+				Creeaza un nou nod ce contine entitatea primita ca parametru
+				si il adauga in mod adecvat in arbore. Daca acesta s-a adaugat
+				la capatul heap-ului, se interschimba cu nodul tata pana cand
+				este respectata conditia de maxHeap
+				
+			embark:
+				Sterge nodul root si il inlocuieste cu ultimul nod al
+				heap-ului, miscandu-l in jos pe acesta din urma pana cand este
+				respectata conditia de maxHeap
+				
+			list:
+				Se parcurge heap-ul in preordine si se afiseaza astfel id-urile
+				entitatilor nodurilor prin care se trece
+				
+			delete:
+				Prima varianta a acestei metode cauta dupa ID o entitate si
+				sterge nodul ce o contine, inlocuindu-l cu ultimul nod al
+				heap-ului si asigurand conditia de maxHeap
+				
+				A doua varianta a acestei metode cauta dupa ID o entitate dupa
+				care cauta in aceasta entitate o persoana (dupa nume), pe care
+				o sterge. Ulterior, intrucat prioritatea acestei entitati s-a
+				modificat, se asigura conditia de maxHeap
+				
+		- Sunt prezente si metode private de care se folosesc cele de mai sus:
+			isEmpty:
+				Verifica existenta nodului root
+			
+			followPath:
+				Size-ul heap-ului sub forma binara reprezinta o cale catre
+				ultimul nod al heap-ului, incepand de la root. Pentru fiecare 0,
+				calea trece prin copilul stang al nodului, iar pentru fiecare 1,
+				prin cel drept. Prima cifra a reprezentarii sub forma binara
+				nu semnifica nimic pentru aceasta cale, deci este ignorat.
+				
+				Calea se poate opri pe penultimul nod din cale, comportament
+				decis de parametrul 'skipLast'.
+				
+				Metoda returneaza nodul la care s-a ajuns
+				
+			getLastNode:
+				Se foloseste de 'followPath' pentru a returna ultimul nod al
+				heap-ului.
+				
+			findNode:
+				Se cauta un nod a carui entitate are ID-ul primit ca parametru,
+				si se returneaza.
+				
+			swapNodes:
+				Schimba referintele entitatilor continute in 2 noduri, astfel
+				interschimband nodurile intr-un mod usor
+				
+			maxHeapify:
+				Aplicata asupra unui nod, metoda il muta (inspre copii sau
+				inspre parinte) pana cand este respectata conditia de maxHeap.
+				
+				Astfel, se verifica mai intai daca prioritatea nodului
+				este mai mare decat cea a parintelui, caz in care aceste noduri
+				se interschimba.
+				
+				Ulterior, se verifica prioritatile copiilor pentru a decide
+				daca e nevoie sa se interschimbe nodul curent cu unul dintre ei
+				(cu cel cu prioritatea cea mai mare).
+				
+			insertDown:
+				Reprezentarea binara a capacitatii heap-ului + 1 reprezinta
+				calea catre urmatoarea pozitie in care se poate adauga un nod
+				in heap.
+				
+				Se obtine penultimul nod din aceasta cale (intrucat ultimul nu
+				exista inca) pentru a servi drept parinte pentru noul nod ce
+				urmeaza a fi introdus.
+				
+			preOrder:
+				Parcurge heap-ul in preordine si afiseaza id-ul fiecarui nod
+				prin care trece.
+				
+			deleteNode:
+				Sterge referintele parintelui catre nodul primit si cele ale
+				nodului primit catre parinte, astfel eleminand nodul din heap.
+				
+				Dupa operatii adecvate, aceasta metoda opereaza doar asupra
+				unei frunze.
+				
+=== boarding ===
+------ Database
+		- Retine un tablou unidimensional de entitati reprezentand entitatile
+		ce urmeaza a fi introduse in heap
+		- Prezinta in acelasi timp metode pentru aceste operatii:
+			registerPerson:
+				Adauga persoana in entitatea corespunzatoare id-ului
+				Daca entitatea nu exista in sistem, aceasta este creata
+				
+			extractEntity:
+				Cauta dupa ID o entitate si o scoate din vector, returnand-o
+				pentru a se putea lucra cu ea (de exemplu inserare in heap)
+				
+			createEntity:
+				folosita de 'registerPerson' la nevoie
+				
+------ MainClass
+		- Clasa ce contine metoda 'main'
+		- Serveste mai multe functionalitati
+		IO:
+			Un Scanner pentru citirea din fisier inputStream si unul pentru
+			lucrul printr-o linie inputLine
+			
+			Redirectionarea output-ului se face in fisierul de output prin
+			System.setOut asupra stream-ului aferent fisierului.
+			Se face un backup al consolei (out-ul initial) in cazul in care se
+			doreste reutilizarea ei la sfarsitul programului.
+			
+		Obiecte principale:
+			Prin declararile statice programul va lucra asupra unei baze de
+			date (Database) in concordanta cu coada de prioritate reprezentata
+			de heap (BinaryHeap PriorityQueue)
+			
+		Metoda setupIO:
+			Face modificarile necesare pentru input si output pentru a se
+			putea lucra cu aceste stream-uri
+			
+		Metoda restoreIO:
+			Restaureaza modificarile facute de 'setupIO'
+			
+		Metoda registerDatabase:
+			> Citeste un intreg din input, reprezentand numarul de persoane
+			ce urmeaza a fi inregistrate
+			> Pentru fiecare persoana din input, i se retin informatiile (ID-ul
+			entitatii din care face parte, numele, varsta, tipul de bilet,
+			beneficii)
+			> Se creeaza un nou obiect de tip Person cu informatiile antepuse,
+			dupa care se inregistreaza in baza de date
+			
+		Metoda executeCommands:
+			> Creeaza un heap ce va functiona drept coada de prioritate
+			> Pana la sfarsitul fisierului de input, se citeste si se executa
+			fiecare comanda
+			> Pentru fiecare comanda, se citesc, daca e cazul, alti parametri
+			si se apeleaza metoda aferenta comenzii (metoda apartinand
+			heap-ului, avand acelasi nume precum comanda).
+			
+			* In cadrul acestei metode se lucreaza cu un alt scanner asupra
+			liniei curente pentru a detecta parametri optionali precum numele
+			la comanda 'delete'
+			* In cadrul comenzii 'list' se retine o variabila 'firstListCall'
+			pe baza careia se afiseaza sau nu un NEWLINE la un apel ulterior
+			de 'list' (intrucat diff-ul din vmchecker observa NEWLINE-ul de la
+			sfarsitul fisierului).
+			
+			
